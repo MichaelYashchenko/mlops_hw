@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "mlops-hw"
+version = "0.1.0"
+description = "ML Ops Course HW"
+license = "MIT"
+authors = ["m.yashchenko"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+mypy = "^1.6.1"
+black = "^23.10.1"
+ruff = "^0.1.4"
+darker = "^1.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
