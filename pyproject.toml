@@ -7,11 +7,104 @@ authors = ["m.yashchenko"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.13"
 mypy = "^1.6.1"
-black = "^23.10.1"
 ruff = "^0.1.4"
 darker = "^1.7.2"
+isort = "^5.12.0"
+bandit = "^1.7.5"
+pandas = "^2.1.2"
+scikit-learn = "^1.3.2"
+sqlalchemy = "^2.0.23"
+pydantic = "^2.4.2"
+alembic = "^1.12.1"
+fastapi = "^0.104.1"
+uvicorn = "^0.24.0.post1"
+
+[tool.darker]
+src = [
+    "src/*",
+]
+revision = "origin/maser"
+diff = false
+isort = true
+flyint = true
+line-length = 88
+color = true
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+disallow_untyped_defs = true
+show_error_codes = true
+no_implicit_optional = true
+warn_return_any = true
+warn_unused_ignores = true
+exclude = ["scripts", "docs", "test"]
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+target-version = "py310"
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "F",        # pyflakes
+    "E", "W",   # pycodestyle
+    "B",        # flake8-bugbear
+    "C90",      # mccabe (complexity)
+    "N",        # pep8-naming
+    "T20",      # flake8-print
+    "RET",      # flake8-return
+    "TCH",      # flake8-type-checking
+    "ERA",      # eradicate
+]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = []
+unfixable = ["B", "SIM", "TRY", "RUF"]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_third_party = ["pytest"]
 
 
 [build-system]
