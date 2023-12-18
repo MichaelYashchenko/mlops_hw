@@ -3,10 +3,11 @@ from typing import Optional
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
-from src.db import crud, schemas
-from src.db.db_setup import SessionLocal
-from src.models import DataFrame, LinearModel, Model, TreeModel
+from db import crud, schemas
+from db.db_setup import SessionLocal
+from models import DataFrame, LinearModel, Model, TreeModel
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"})
 
@@ -47,8 +48,14 @@ def read_dataframe(dataframe_id: int, db: Session = Depends(get_db)):
 
 @app.delete("/dataframes/{dataframe_id}/", tags=["Dataframes"])
 def delete_dataframe(dataframe_id: int, db: Session = Depends(get_db)):
-    crud.delete_dataframe(db=db, dataframe_id=dataframe_id)
-    DataFrame.delete(dataframe_id)
+    try:
+        crud.delete_dataframe(db=db, dataframe_id=dataframe_id)
+        DataFrame.delete(dataframe_id)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=403,
+            detail="Dataframe is still used in models, first delete model",
+        )
     return {"message": "Dataframe deleted"}
 
 

@@ -9,15 +9,17 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeRegressor
+import dvc.api
 
-from .db import crud
-from .db.db_setup import SessionLocal
-from .exceptions import IncorrecTargetError
+from db import crud
+from db.db_setup import SessionLocal
+from exceptions import IncorrecTargetError
 
 field_name = str
 field_values = dict[str, str]
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+REMOTE_STORAGE = "minio"
 
 
 @contextmanager
@@ -35,7 +37,8 @@ def session_scope() -> Generator[SessionLocal, None, None]:
 
 
 class DataFrame:
-    dataframe_path = os.path.join(BASE_DIR, "dataframes", "{}.json")
+    short_path = os.path.join("dataframes", "{}.json")
+    full_path = os.path.join(BASE_DIR, short_path)
 
     def __init__(self, dataframe_id: int) -> None:
         with session_scope() as db:
@@ -60,23 +63,32 @@ class DataFrame:
 
     @classmethod
     def delete(cls, dataframe_id: int) -> None:
-        os.remove(cls.dataframe_path.format(dataframe_id))
+        os.remove(cls.full_path.format(dataframe_id))
 
     @classmethod
     def save(
         cls, dataframe_id: int, dataframe_dict: Dict[field_name, field_values]
     ) -> None:
-        with open(cls.dataframe_path.format(dataframe_id), "w") as f:
+        save_path = cls.full_path.format(dataframe_id)
+        with open(save_path, "w") as f:
             json.dump(dataframe_dict, f, indent=4)
+        os.system(f"dvc add {save_path}")
+        os.system(f"dvc push")
 
     @classmethod
     def _load(cls, dataframe_id: int) -> pd.DataFrame:
-        return pd.read_json(cls.dataframe_path.format(dataframe_id))
+        with dvc.api.open(
+            cls.short_path.format(dataframe_id),
+            remote=REMOTE_STORAGE,
+        ) as f:
+            df = pd.read_json(f)
+        return df
 
 
 class Model:
     model_cls = None
-    model_path = os.path.join(BASE_DIR, "models", "{}.sav")
+    short_path = os.path.join("models", "{}.sav")
+    full_path = os.path.join(BASE_DIR, short_path)
 
     @classmethod
     def fit(
@@ -115,16 +127,23 @@ class Model:
 
     @classmethod
     def delete_model(cls, model_id: int) -> None:
-        os.remove(cls.model_path.format(model_id))
+        os.remove(cls.full_path.format(model_id))
 
     @classmethod
     def _save(cls, model_id: int, model: BaseEstimator) -> None:
-        with open(cls.model_path.format(model_id), "wb") as f:
+        save_path = cls.full_path.format(model_id)
+        with open(save_path, "wb") as f:
             pickle.dump(model, f)
+        os.system(f"dvc add {save_path}")
+        os.system(f"dvc push")
 
     @classmethod
     def _load(cls, model_id: int) -> BaseEstimator:
-        with open(cls.model_path.format(model_id), "rb") as f:
+        with dvc.api.open(
+            cls.short_path.format(model_id),
+            mode="rb",
+            remote=REMOTE_STORAGE,
+        ) as f:
             model = pickle.load(f)
         return model
 
