@@ -5,9 +5,9 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-from db import crud, schemas
-from db.db_setup import SessionLocal
-from models import DataFrame, LinearModel, Model, TreeModel
+from src.db import crud, schemas
+from src.db.db_setup import SessionLocal
+from src.models import DataFrame, LinearModel, Model, TreeModel
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"})
 
@@ -101,12 +101,12 @@ def read_available_models():
 
 @app.post("/models/predict/", response_model=schemas.PredictResult, tags=["Models"])
 def predict(
-    model_info: schemas.Predict, dataframe: dict, db: Session = Depends(get_db)
+    mdl_info: schemas.Predict, dataframe: dict, db: Session = Depends(get_db)
 ):
-    db_model = crud.get_model(db=db, model_id=model_info.model_id)
+    db_model = crud.get_model(db=db, model_id=mdl_info.model_id)
     if db_model is None:
         raise HTTPException(status_code=404, detail="Model not found")
-    result = Model.predict(model_info.model_id, dataframe)
+    result = Model.predict(mdl_info.model_id, dataframe)
     return schemas.PredictResult(result=result)
 
 

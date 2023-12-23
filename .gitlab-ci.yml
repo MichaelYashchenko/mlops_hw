@@ -1,0 +1,25 @@
+include:
+  - tests/ci_tests.yml
+
+stages:
+  - test
+  - build_and_publish
+
+build_and_publish:
+  stage: build_and_publish
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_REF_NAME == "master"'
+      changes:
+        - Dockerfile
+        - docker-entrypoint.sh
+        - poetry.lock
+        - pyproject.toml
+        - src/*
+  before_script:
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  script:
+    - docker build -t $DOCKER_IMAGE_NAME -f Dockerfile .
+    - docker push $DOCKER_IMAGE_NAME

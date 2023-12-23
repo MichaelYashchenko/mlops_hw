@@ -5,11 +5,11 @@ RUN pip3 install "poetry==1.7.0"
 COPY poetry.lock pyproject.toml ./
 RUN poetry install
 
-COPY src ./src
+COPY src ./mlops/src
 
-WORKDIR src/
+WORKDIR mlops/
 
-RUN mkdir models dataframes
+RUN mkdir src/models src/dataframes
 
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh

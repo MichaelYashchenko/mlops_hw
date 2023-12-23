@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
@@ -25,6 +26,16 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+config.set_main_option(
+    'sqlalchemy.url',
+    "postgresql://{user}:{password}@{host}/{db}".format(
+            user=os.getenv("POSTGRES_USER", "postgres"),
+            password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+            host=os.getenv("POSTGRES_HOST", "postgres"),
+            db=os.getenv("POSTGRES_DB", "postgres"),
+    ),
+)
 
 
 def run_migrations_offline() -> None:

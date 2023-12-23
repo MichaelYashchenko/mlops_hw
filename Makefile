@@ -42,4 +42,10 @@ typecheck-path: # Type check by path
 security-check: # Security check
 	bandit $(SRC)
 
-.PHONY: help clean leave lint lint-path format format-path typecheck typecheck-path security-check
+run-app: # Run api app
+	poetry run python -m src.api.main
+
+run-tests: # Run tests
+	poetry run pytest tests
+
+.PHONY: help clean leave lint lint-path format format-path typecheck typecheck-path security-check run-app run-tests

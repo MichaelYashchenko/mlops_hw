@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from typing import Iterable, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ModelsChoiceEnum(str, enum.Enum):
@@ -47,6 +47,10 @@ class ModelsAvailable(BaseModel):
 
 class Predict(BaseModel):
     model_id: int
+
+    model_config = ConfigDict(
+        protected_namespaces=(),
+    )
 
 
 class PredictResult(BaseModel):
