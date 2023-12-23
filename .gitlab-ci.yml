@@ -19,7 +19,8 @@ build_and_publish:
         - pyproject.toml
         - src/*
   before_script:
-    - echo "$DOCKER_PASSWORD" | docker login --username myashchenko101 --password-stdin
+    - echo "$DOCKER_USERNAME"
+    - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
   script:
     - docker build -t $DOCKER_IMAGE_NAME -f Dockerfile .
     - docker push $DOCKER_IMAGE_NAME
