@@ -1,0 +1,12 @@
+test:
+  stage: test
+  image: python:3.9
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_REF_NAME == "master"'
+      changes:
+        - src/*
+        - tests/*
+  script:
+    - pip install poetry
+    - poetry install
+    - poetry run pytest tests
