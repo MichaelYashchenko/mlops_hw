@@ -6,6 +6,7 @@ poetry run alembic upgrade head
 cd ..
 
 git init
+
 poetry run dvc init
 poetry run dvc remote add -d minio s3://first
 poetry run dvc remote modify minio endpointurl http://$MINIO_HOST:9000
